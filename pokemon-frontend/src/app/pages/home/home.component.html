@@ -1,0 +1,28 @@
+<div class="p-4">
+  <!-- Carousel Section -->
+  <nz-carousel [nzEffect]="effect" class="rounded-lg mb-8 h-[400px]">
+    <div *ngFor="let videoUrl of videoUrls" nz-carousel-content>
+      <iframe
+        class="w-full h-full"
+        [src]="videoUrl | safe"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+    </div>
+  </nz-carousel>
+
+  <!-- Pokémon Section -->
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <ng-container *ngFor="let pokemon of pokemonList">
+      <nz-ribbon [nzText]="pokemon.name">
+        <div class="border border-black/6 rounded-lg shadow-lg p-2.5">
+          <img
+            [src]="pokemon.image"
+            [alt]="pokemon.name"
+            class="w-24 h-24 mx-auto mt-2"
+          />
+        </div>
+      </nz-ribbon>
+    </ng-container>
+  </div>
+</div>
