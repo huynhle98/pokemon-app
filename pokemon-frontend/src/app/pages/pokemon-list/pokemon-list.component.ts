@@ -14,6 +14,9 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { PokemonItemComponent } from '../../components/pokemon-item/pokemon-item.component';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { PokemonDetailComponent } from '../../components/pokemon-detail/pokemon-detail.component';
+import { IPokemonItem } from '../../interfaces/pokemon.interface';
 
 @Component({
   selector: 'app-pokemon-list',
@@ -30,6 +33,8 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
     NzIconModule,
     NzSliderModule,
     NzInputNumberModule,
+    NzModalModule,
+    PokemonDetailComponent,
   ],
   templateUrl: './pokemon-list.component.html',
   styleUrl: './pokemon-list.component.scss',
@@ -102,6 +107,9 @@ export class PokemonListComponent {
   speedMaxValue: number | null = null;
   speedMarks: { [key: number]: string } = {};
   //#endregion filters
+
+  isDetailVisible = false;
+  selectedPokemon = signal<IPokemonItem | null>(null);
 
   ngOnInit(): void {
     // Load Pokémon data from URL query params if applicable
@@ -212,5 +220,21 @@ export class PokemonListComponent {
       ? parseInt(urlParams.get('maxSpeed') || '', 10)
       : null;
     this.filterPokemon(); // Apply the filters from query params
+  }
+
+  toggleFavorite(): void {}
+
+  openPokemonDetail(pokemon: IPokemonItem) {
+    console.log(
+      '🚀 ~ PokemonListComponent ~ openPokemonDetail ~ pokemon:',
+      pokemon
+    );
+    this.selectedPokemon.set(pokemon);
+    this.isDetailVisible = true;
+  }
+
+  closePokemonDetail(): void {
+    this.selectedPokemon.set(null);
+    this.isDetailVisible = false;
   }
 }

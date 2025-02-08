@@ -1,0 +1,115 @@
+<div *ngIf="pokemonDetail()" class="flex flex-col items-center text-center">
+  <button
+    (click)="favoriteToggle()"
+    class="rounded-md inline-flex items-center mb-2"
+    nz-button
+    [nzType]="'link'"
+    [nzDanger]="pokemonDetail().isFavorite"
+  >
+    <span
+      class="text-[20px]"
+      nz-icon
+      [nzType]="!pokemonDetail().isFavorite ? 'plus-circle' : 'minus-circle'"
+      nzTheme="outline"
+      nzTwotoneColor="#eb2f96"
+    ></span>
+    {{
+      pokemonDetail().isFavorite ? "Remove from Favorites" : " Add to Favorites"
+    }}
+  </button>
+  <div class="card-container animate-float">
+    <!-- Pokemon Card -->
+    <div
+      class="card w-72 sm:w-80 rounded-xl overflow-hidden shadow-[0px_3px_8px_rgba(0,0,0,0.24)]"
+    >
+      <!-- Card Frame -->
+      <div class="relative bg-[#175462] p-3 rounded-xl">
+        <!-- Header -->
+        <div class="flex justify-between items-start mb-2">
+          <h2 class="text-lg font-bold text-white">Charizard</h2>
+          <div class="flex items-center gap-1">
+            <span class="text-white font-bold">HP</span>
+            <span class="text-white font-bold">120</span>
+          </div>
+        </div>
+
+        <!-- Card Image -->
+        <div class="relative aspect-square mb-3 rounded-lg overflow-hidden">
+          <div class="absolute inset-0 bg-white"></div>
+          <div class="absolute inset-0 holo-effect animate-holo-glow"></div>
+          <div class="absolute inset-0 card-shine"></div>
+          <div class="absolute inset-0 sparkles"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div
+              class="w-48 h-48 energy-symbol rounded-full animate-energy-spin opacity-20"
+            ></div>
+          </div>
+          <!-- Charizard Image -->
+          <img
+            [src]="pokemonDetail().image"
+            alt="Charizard"
+            class="pokemon-image"
+          />
+        </div>
+
+        <!-- Pokemon Info -->
+        <div class="bg-white/90 backdrop-blur rounded-lg p-3 space-y-3">
+          <!-- Type -->
+          <div class="flex items-center gap-2">
+            <span class="type-fire text-white text-xs px-2 py-1 rounded-full"
+              >Fire</span
+            >
+            <span class="text-xs text-neutral-600">Stage 2</span>
+          </div>
+
+          <!-- Attacks -->
+          <div class="space-y-2">
+            <div class="flex items-start gap-2">
+              <div class="flex gap-1">
+                <div
+                  class="w-4 h-4 rounded-full bg-gradient-to-br from-orange-400 to-red-500 animate-pulse-glow"
+                ></div>
+                <div
+                  class="w-4 h-4 rounded-full bg-gradient-to-br from-orange-400 to-red-500 animate-pulse-glow"
+                ></div>
+              </div>
+              <div>
+                <h3 class="font-bold text-sm">Fire Spin</h3>
+                <p class="text-xs text-neutral-600">
+                  Discard 2 Energy cards attached to Charizard in order to use
+                  this attack.
+                </p>
+              </div>
+              <span class="font-bold ml-auto">100</span>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div
+            class="flex items-center justify-between text-xs pt-2 border-t border-neutral-200"
+          >
+            <div>
+              <span class="text-neutral-600">Weakness</span>
+              <span class="ml-1 type-fire text-white px-2 py-0.5 rounded-full"
+                >Water</span
+              >
+            </div>
+            <div>
+              <span class="text-neutral-600">Resistance</span>
+              <span class="ml-1 bg-neutral-200 px-2 py-0.5 rounded-full"
+                >-30</span
+              >
+            </div>
+            <div>
+              <span class="text-neutral-600">Retreat Cost</span>
+              <span
+                class="ml-1 bg-neutral-800 text-white px-2 py-0.5 rounded-full"
+                >3</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
