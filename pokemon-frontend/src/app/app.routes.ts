@@ -8,6 +8,13 @@ export const routes: Routes = [
       import('./pages/home/home.component').then((c) => c.HomeComponent),
   },
   {
+    path: 'pokemon-list',
+    loadComponent: () =>
+      import('./pages/pokemon-list/pokemon-list.component').then(
+        (c) => c.PokemonListComponent
+      ),
+  },
+  {
     path: 'welcome',
     loadChildren: () =>
       import('./pages/welcome/welcome.routes').then((m) => m.WELCOME_ROUTES),

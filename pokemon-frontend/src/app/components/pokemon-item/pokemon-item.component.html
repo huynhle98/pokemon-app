@@ -1,0 +1,26 @@
+<div>
+  <ng-container *ngIf="pokemonItem()?.['isFavorite']; else itemTemplate">
+    <nz-ribbon [nzText]="favoriteIcon" [nzColor]="'#eb2f96'"></nz-ribbon>
+  </ng-container>
+</div>
+
+<ng-template #itemTemplate>
+  <div
+    class="pokemon-item border-black/2 rounded-lg shadow-[0px_3px_8px_rgba(0,0,0,0.24)] p-2.5 w-full"
+  >
+    <img
+      [src]="checkImg(pokemonItem()?.image || '')"
+      alt=""
+      class="pokemon-item-img"
+    />
+    <span class="pokemon-item-name">{{ pokemonItem()?.name | uppercase }}</span>
+  </div>
+</ng-template>
+<ng-template #favoriteIcon>
+  <span
+    nz-icon
+    nzType="heart"
+    nzTheme="twotone"
+    nzTwotoneColor="#eb2f96"
+  ></span>
+</ng-template>

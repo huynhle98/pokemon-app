@@ -1,0 +1,112 @@
+<div>
+  <div class="flex justify-between mb-4">
+    <h3 class="text-xl font-bold">Pokemon List</h3>
+    <button
+      class="rounded-md"
+      nz-button
+      nzType="primary"
+      (click)="importCsv.click()"
+    >
+      Import CSV
+    </button>
+    <input
+      type="file"
+      accept=".csv"
+      #importCsv
+      style="display: none"
+      (change)="onImportCsv($event)"
+    />
+  </div>
+  <!-- <app-hero-form-add (newHero)="onNewHero($event)"></app-hero-form-add> -->
+  <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="flex flex-col">
+      <span class="mb-1 font-semibold">Search Pokemon</span>
+      <nz-input-group [nzPrefix]="prefixIconSearch">
+        <input
+          nz-input
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="searchDebounced$.next($event)"
+          placeholder="Search Pokemon by name"
+          class="my-1"
+        />
+        <ng-template #prefixIconSearch>
+          <span nz-icon nzType="search" nzTheme="outline"></span>
+        </ng-template>
+      </nz-input-group>
+    </div>
+
+    <div class="flex flex-col">
+      <span class="mb-1 font-semibold">Type</span>
+      <nz-select ngModel="lucy" nzSize="large">
+        <nz-option nzValue="jack" nzLabel="Jack"></nz-option>
+        <nz-option nzValue="lucy" nzLabel="Lucy"></nz-option>
+        <nz-option nzValue="disabled" nzLabel="Disabled" nzDisabled></nz-option>
+      </nz-select>
+    </div>
+
+    <div class="flex flex-col">
+      <span class="mb-1 font-semibold">Legendary Status</span>
+      <nz-select ngModel="lucy" nzSize="large">
+        <nz-option nzValue="jack" nzLabel="Jack"></nz-option>
+        <nz-option nzValue="lucy" nzLabel="Lucy"></nz-option>
+        <nz-option nzValue="disabled" nzLabel="Disabled" nzDisabled></nz-option>
+      </nz-select>
+    </div>
+
+    <div class="flex flex-col">
+      <span class="mb-1 font-semibold">Speed Ranges</span>
+      <div class="grid grid-cols-2 gap-2">
+        <nz-input-number
+          class="w-full"
+          [(ngModel)]="speedMinValue"
+          [nzMin]="speedMin"
+          [nzMax]="speedMax"
+          nzSize="large"
+          nzPlaceHolder="Minimum"
+        />
+        <nz-input-number
+          class="w-full"
+          [(ngModel)]="speedMaxValue"
+          [nzMin]="speedMin"
+          [nzMax]="speedMax"
+          nzSize="large"
+          nzPlaceHolder="Maximum"
+        />
+      </div>
+    </div>
+    <!-- (ngModelChange)="onChange($event)"
+      (nzOnAfterChange)="onAfterChange($event)" -->
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6">
+    <div class="heroes-notfound" *ngIf="filteredList().length === 0">
+      Not Found Heroes Matching
+    </div>
+    <app-pokemon-item
+      *ngFor="let item of filteredList()"
+      [pokemonItem]="item"
+      class="hero"
+    ></app-pokemon-item>
+  </div>
+  <div class="flex justify-end mt-4">
+    <nz-pagination
+      [nzPageIndex]="currentPage"
+      [nzTotal]="filteredList().length"
+      nzShowSizeChanger
+      [nzPageSize]="pageSizeDefault"
+      [nzPageSizeOptions]="pageSizeOptions"
+    ></nz-pagination>
+  </div>
+  <!-- <ul class="heroes" *ngIf="viewType != 0" [@enterAnimation]>
+  <div class="heroes-notfound" *ngIf="heroes.length == 0 && stateSearch">
+    Not Found Heroes Matching
+  </div> -->
+
+  <!-- <app-hero-type-list
+    routerLink="/detail/{{ hero.id }}"
+    *ngFor="let hero of heroes"
+    [heroInfo]="hero"
+    class="hero-type-list"
+  ></app-hero-type-list> -->
+  <!-- </ul> -->
+</div>
