@@ -13,10 +13,12 @@ export class AuthService {
   // 📌 Signup: Hash password and create user
   async signup(username: string, password: string) {
     const hashedPassword = await bcrypt.hash(password, 10);
-    return this.usersService.create({
+    await this.usersService.create({
       username,
       password: hashedPassword,
     });
+
+    return this.login(username, password);
   }
 
   // 📌 Login: Validate user and return JWT

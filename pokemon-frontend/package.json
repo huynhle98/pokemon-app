@@ -24,6 +24,7 @@
     "@primeng/themes": "^18.0.2",
     "@tailwindcss/postcss": "^4.0.4",
     "autoprefixer": "^10.4.20",
+    "jwt-decode": "^4.0.0",
     "ng-zorro-antd": "^18.2.1",
     "papaparse": "^5.5.2",
     "postcss": "^8.5.1",
