@@ -36,7 +36,9 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-var-requires': 'off',
-      '@typescript-eslint/prefer-nullish-coalescing': 'error',
+      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/require-await': 'warn',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
     },
   },
 );

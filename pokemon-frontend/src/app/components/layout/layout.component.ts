@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import {
   HomeOutline,
@@ -31,21 +31,20 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './layout.component.scss',
   providers: [provideNzIconsPatch([HomeOutline, UnorderedListOutline])],
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
   isCollapsed = false;
   appName = environment.appName;
   menuItems = MENU_ITEMS;
-  profile: any = null;
 
   get isAuthenticated() {
     return this.authService.isAuthenticated();
   }
 
-  ngOnInit(): void {
-    this.profile = this.authService.getProfile();
+  get profile() {
+    return this.authService.getProfile();
   }
 
   logout() {

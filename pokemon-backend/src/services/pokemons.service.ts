@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Pokemon, PokemonDocument } from '../schemas/pokemon.schema';
+import { GetPokemonsDto } from 'src/dtos/get-pokemons.dto';
 
 @Injectable()
 export class PokemonsService {
@@ -13,7 +14,57 @@ export class PokemonsService {
     return new this.pokemonModel(pokemon).save();
   }
 
-  async findAll(): Promise<Pokemon[]> {
-    return this.pokemonModel.find().exec();
+  // Save multiple Pokémon records to the database
+  async createMany(pokemons: Pokemon[]): Promise<Pokemon[]> {
+    return this.pokemonModel.insertMany(pokemons);
+  }
+
+  async findAll(query: GetPokemonsDto) {
+    const filter: any = {};
+    // Apply filters
+    if (query.name) {
+      filter.name = { $regex: query.name, $options: 'i' }; // Case-insensitive search for name
+    }
+    if (query.type) {
+      filter.$or = [{ type1: query.type }, { type2: query.type }];
+    }
+    filter.legendary = query.legendary === 'true' ? true : false;
+    filter.speed = {
+      $gte:
+        !query.minSpeed || this.isNotNullOrUndefined(query.minSpeed)
+          ? Number(query.minSpeed) || 1
+          : 1,
+      $lte:
+        !query.maxSpeed || this.isNotNullOrUndefined(query.maxSpeed)
+          ? Number(query.maxSpeed) || 500
+          : 500,
+    };
+
+    // Fetch Pokémon with pagination
+    const pokemons = await this.pokemonModel
+      .find(filter)
+      .skip(query.offset)
+      .limit(query.limit);
+
+    const totalPokemons = await this.pokemonModel.countDocuments(filter);
+
+    return { totalPokemons, data: pokemons };
+  }
+
+  isNotNullOrUndefined(value: string): boolean {
+    return !(value === 'undefined' || value === 'null');
+  }
+
+  async checkIfPokemonExists(id: string): Promise<boolean> {
+    const pokemon = await this.pokemonModel.findOne({ id });
+    return !!pokemon; // Return true if exists, false otherwise
+  }
+
+  async getAllUniqueTypes(): Promise<string[]> {
+    const types1 = await this.pokemonModel.distinct('type1').exec();
+    const types2 = await this.pokemonModel.distinct('type2').exec();
+
+    const uniqueTypes = new Set([...types1, ...types2]);
+    return Array.from(uniqueTypes).filter(Boolean); // Remove null/undefined values
   }
 }

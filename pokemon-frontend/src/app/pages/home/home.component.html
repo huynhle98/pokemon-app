@@ -14,7 +14,12 @@
   <!-- Pokémon Section -->
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
     <ng-container *ngFor="let pokemon of pokemonList">
-      <nz-ribbon [nzText]="pokemon.name">
+      <app-pokemon-item
+        [pokemonItem]="pokemon"
+        class="hero"
+        (click)="openPokemonDetail(pokemon)"
+      ></app-pokemon-item>
+      <!-- <nz-ribbon [nzText]="pokemon.name">
         <div class="border border-black/6 rounded-lg shadow-lg p-2.5">
           <img
             [src]="pokemon.image"
@@ -22,7 +27,31 @@
             class="w-24 h-24 mx-auto mt-2"
           />
         </div>
-      </nz-ribbon>
+      </nz-ribbon> -->
     </ng-container>
   </div>
+
+  <!-- Pokémon Detail Modal -->
+  <nz-modal
+    [(nzVisible)]="isDetailVisible"
+    nzTitle="Pokemon Details"
+    (nzOnCancel)="closePokemonDetail()"
+    [nzFooter]="null"
+    [nzClassName]="'rounded-lg'"
+    [nzMaskStyle]="{ top: '0px' }"
+    [nzBodyStyle]="{ padding: '10px' }"
+    [nzStyle]="{
+      top: '20px',
+      borderRadius: '12px',
+      overflow: 'hidden',
+      padding: '0'
+    }"
+  >
+    <div *nzModalContent class="rounded-lg">
+      <app-pokemon-detail
+        [pokemonDetail]="selectedPokemon()"
+        (favoriteChange)="toggleFavorite()"
+      ></app-pokemon-detail>
+    </div>
+  </nz-modal>
 </div>

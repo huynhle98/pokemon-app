@@ -46,8 +46,8 @@
               nz-icon
               [nzType]="item.icon"
             ></span>
-            <a [class.invisible]="isCollapsed" [routerLink]="item.path">
-              {{ item.label }}
+            <a [routerLink]="item.path">
+              {{ isCollapsed ? "" : item.label }}
             </a>
           </li>
         </ng-template>

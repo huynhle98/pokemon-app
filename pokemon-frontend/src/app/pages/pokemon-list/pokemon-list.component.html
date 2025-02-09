@@ -2,22 +2,29 @@
   <div class="flex justify-between mb-4">
     <h3 class="text-xl font-bold">Pokemon List</h3>
     <button
-      class="rounded-md"
+      class="rounded-md flex items-center"
       nz-button
       nzType="primary"
+      [disabled]="isImporting"
       (click)="importCsv.click()"
     >
-      Import CSV
+      <span
+        *ngIf="isImporting"
+        nz-icon
+        nzType="loading"
+        nzTheme="outline"
+      ></span>
+
+      {{ isImporting ? "Importing CSV" : "Import CSV" }}
     </button>
     <input
       type="file"
       accept=".csv"
       #importCsv
       style="display: none"
-      (change)="onImportCsv($event)"
+      (change)="onImportCsv($event, importCsv)"
     />
   </div>
-  <!-- <app-hero-form-add (newHero)="onNewHero($event)"></app-hero-form-add> -->
   <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     <div class="flex flex-col">
       <span class="mb-1 font-semibold">Search Pokemon</span>
@@ -28,6 +35,7 @@
           (ngModelChange)="searchDebounced$.next($event)"
           placeholder="Search Pokemon by name"
           class="my-1"
+          nzAllowClear
         />
         <ng-template #prefixIconSearch>
           <span nz-icon nzType="search" nzTheme="outline"></span>
@@ -37,19 +45,32 @@
 
     <div class="flex flex-col">
       <span class="mb-1 font-semibold">Type</span>
-      <nz-select ngModel="lucy" nzSize="large">
-        <nz-option nzValue="jack" nzLabel="Jack"></nz-option>
-        <nz-option nzValue="lucy" nzLabel="Lucy"></nz-option>
-        <nz-option nzValue="disabled" nzLabel="Disabled" nzDisabled></nz-option>
+      <nz-select
+        [(ngModel)]="selectedType"
+        nzSize="large"
+        nzPlaceHolder="Select Type"
+        nzAllowClear
+        (ngModelChange)="onTypeChange($event)"
+      >
+        <nz-option
+          *ngFor="let item of types"
+          [nzValue]="item"
+          [nzLabel]="item"
+        ></nz-option>
       </nz-select>
     </div>
 
     <div class="flex flex-col">
       <span class="mb-1 font-semibold">Legendary Status</span>
-      <nz-select ngModel="lucy" nzSize="large">
-        <nz-option nzValue="jack" nzLabel="Jack"></nz-option>
-        <nz-option nzValue="lucy" nzLabel="Lucy"></nz-option>
-        <nz-option nzValue="disabled" nzLabel="Disabled" nzDisabled></nz-option>
+      <nz-select
+        [(ngModel)]="selectedLegendary"
+        nzSize="large"
+        [nzPlaceHolder]="'Select Status'"
+        nzAllowClear
+        (ngModelChange)="onLegendaryStatusChange($event)"
+      >
+        <nz-option [nzValue]="true" nzLabel="True"></nz-option>
+        <nz-option [nzValue]="false" nzLabel="Fasle"></nz-option>
       </nz-select>
     </div>
 
@@ -63,6 +84,7 @@
           [nzMax]="speedMax"
           nzSize="large"
           nzPlaceHolder="Minimum"
+          (ngModelChange)="onSpeedRangeChange()"
         />
         <nz-input-number
           class="w-full"
@@ -71,45 +93,43 @@
           [nzMax]="speedMax"
           nzSize="large"
           nzPlaceHolder="Maximum"
+          (ngModelChange)="onSpeedRangeChange(false)"
         />
       </div>
     </div>
-    <!-- (ngModelChange)="onChange($event)"
-      (nzOnAfterChange)="onAfterChange($event)" -->
   </div>
 
-  <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6">
-    <div class="heroes-notfound" *ngIf="filteredList().length === 0">
-      Not Found Heroes Matching
-    </div>
-    <app-pokemon-item
-      *ngFor="let item of filteredList()"
-      [pokemonItem]="item"
-      class="hero"
-      (click)="openPokemonDetail(item)"
-    ></app-pokemon-item>
+  <div
+    *ngIf="isLoadingData; else hasDataTemplate"
+    class="flex items-center justify-center bg-opacity-40 w-full h-[30vh]"
+  >
+    <span class="text-4xl" nz-icon nzType="loading" nzTheme="outline"></span>
   </div>
+
+  <ng-template #hasDataTemplate>
+    <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6 relative">
+      <div class="heroes-notfound" *ngIf="filteredList().length === 0">
+        Not Found Heroes Matching
+      </div>
+      <app-pokemon-item
+        *ngFor="let item of filteredList()"
+        [pokemonItem]="item"
+        class="hero"
+        (click)="openPokemonDetail(item)"
+      ></app-pokemon-item>
+    </div>
+  </ng-template>
   <div class="flex justify-end mt-4">
     <nz-pagination
-      [nzPageIndex]="currentPage"
-      [nzTotal]="filteredList().length"
+      [(nzPageIndex)]="currentPage"
+      [nzTotal]="totalResults"
       nzShowSizeChanger
       [nzPageSize]="pageSizeDefault"
       [nzPageSizeOptions]="pageSizeOptions"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+      (nzPageIndexChange)="onPageChange($event)"
     ></nz-pagination>
   </div>
-  <!-- <ul class="heroes" *ngIf="viewType != 0" [@enterAnimation]>
-  <div class="heroes-notfound" *ngIf="heroes.length == 0 && stateSearch">
-    Not Found Heroes Matching
-  </div> -->
-
-  <!-- <app-hero-type-list
-    routerLink="/detail/{{ hero.id }}"
-    *ngFor="let hero of heroes"
-    [heroInfo]="hero"
-    class="hero-type-list"
-  ></app-hero-type-list> -->
-  <!-- </ul> -->
 
   <!-- Pokémon Detail Modal -->
   <nz-modal
@@ -134,4 +154,5 @@
       ></app-pokemon-detail>
     </div>
   </nz-modal>
+  <!-- <app-spinner [loading]="true"></app-spinner> -->
 </div>

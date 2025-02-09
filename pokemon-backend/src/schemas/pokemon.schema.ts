@@ -49,6 +49,9 @@ export class Pokemon {
 
   @Prop({ required: true })
   ytbUrl?: string;
+
+  @Prop({ required: false })
+  isFavorite?: boolean;
 }
 
 export const PokemonSchema = SchemaFactory.createForClass(Pokemon);

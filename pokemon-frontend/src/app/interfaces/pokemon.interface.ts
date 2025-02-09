@@ -14,5 +14,6 @@ export interface IPokemonItem {
   legendary: boolean;
   image: string;
   ytbUrl?: string;
+  isFavorite?: boolean;
   [key: string]: any;
 }

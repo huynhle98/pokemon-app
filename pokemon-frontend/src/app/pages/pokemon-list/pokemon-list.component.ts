@@ -1,22 +1,29 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { SearchOutline } from '@ant-design/icons-angular/icons';
+import { LoadingOutline, SearchOutline } from '@ant-design/icons-angular/icons';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzSelectModule } from 'ng-zorro-antd/select';
-import { NzTableModule } from 'ng-zorro-antd/table';
-import * as Papa from 'papaparse';
-import { BehaviorSubject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { PokemonItemComponent } from '../../components/pokemon-item/pokemon-item.component';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
-import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
-import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { BehaviorSubject, throwError } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+} from 'rxjs/operators';
 import { PokemonDetailComponent } from '../../components/pokemon-detail/pokemon-detail.component';
+import { PokemonItemComponent } from '../../components/pokemon-item/pokemon-item.component';
 import { IPokemonItem } from '../../interfaces/pokemon.interface';
+import { PokemonsService } from '../../services/pokemons.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-pokemon-list',
@@ -38,64 +45,28 @@ import { IPokemonItem } from '../../interfaces/pokemon.interface';
   ],
   templateUrl: './pokemon-list.component.html',
   styleUrl: './pokemon-list.component.scss',
-  providers: [provideNzIconsPatch([SearchOutline])],
+  providers: [provideNzIconsPatch([SearchOutline, LoadingOutline])],
 })
 export class PokemonListComponent {
+  private messageService = inject(NzMessageService);
+  private pokemonsService = inject(PokemonsService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
   // State variables
   pokemonList: any[] = []; // All Pokémon data
-  filteredList = signal<any[]>([
-    {
-      name: '1',
-      type: 'Pokemon-1',
-      legendary: false,
-      speed: 474,
-      image:
-        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png',
-    },
-    {
-      name: '100',
-      type: 'Pokemon-100',
-      legendary: false,
-      speed: 595,
-      image:
-        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/100.png',
-    },
-    {
-      name: '100',
-      type: 'Pokemon-100',
-      legendary: false,
-      speed: 595,
-      image:
-        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/100.png',
-    },
-    {
-      name: '100',
-      type: 'Pokemon-100',
-      legendary: false,
-      speed: 595,
-      image:
-        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/100.png',
-    },
-    {
-      name: '100',
-      type: 'Pokemon-100',
-      legendary: false,
-      speed: 595,
-      image:
-        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/100.png',
-    },
-  ]); // Filtered Pokémon list
+  filteredList = signal<any[]>([]); // Filtered Pokémon list
   searchTerm: string = ''; // Search term
   searchDebounced$ = new BehaviorSubject<string>('');
-  pageSize = 20; // Default page size
 
-  types: string[] = ['Fire', 'Water', 'Grass', 'Electric']; // Pokémon types (simplified)
+  types: string[] = []; // Pokémon types (simplified)
   legendaryStatus: boolean | null = null;
   minSpeed: number | null = null;
   maxSpeed: number | null = null;
 
   currentPage = 1; // Default page
   pageSizeDefault = 20;
+  totalResults = 0;
   pageSizeOptions = [10, 20, 50, 100];
 
   //#region filters
@@ -106,129 +77,182 @@ export class PokemonListComponent {
   speedMinValue: number | null = null;
   speedMaxValue: number | null = null;
   speedMarks: { [key: number]: string } = {};
+  queryParams: {
+    name?: string | null;
+    type?: string | null;
+    legendary?: string | null;
+    minSpeed?: string | null;
+    maxSpeed?: string | null;
+    limit?: number;
+    offset?: number;
+    [key: string]: any;
+  } = {};
+  selectedType: string | null = null;
+  selectedLegendary: boolean | null = null;
   //#endregion filters
 
   isDetailVisible = false;
   selectedPokemon = signal<IPokemonItem | null>(null);
 
+  isImporting = false;
+  isLoadingData = false;
+
   ngOnInit(): void {
     // Load Pokémon data from URL query params if applicable
+    this.getPokemonsTypes();
     this.loadFromQueryParams();
+    this.handleSearch();
+  }
 
+  handleSearch(): void {
     // Set up the search debounce
     this.searchDebounced$
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((term) => {
-        this.filterPokemon();
+        this.queryParams.name = term;
+        this.updateQueryParams();
+        this.getPokemons();
+      });
+  }
+
+  getPokemonsTypes(): void {
+    this.pokemonsService
+      .getTypes()
+      .pipe(
+        catchError((err) => {
+          this.messageService.error('Failed to retrieve Pokémon types');
+          return throwError(() => err);
+        })
+      )
+      .subscribe((types: string[]) => {
+        this.types = types;
       });
   }
 
   // Handle CSV file import
-  onImportCsv(event: any): void {
+  onImportCsv(event: any, el: HTMLInputElement): void {
     const file = event.target.files[0];
-    if (file) {
-      Papa.parse(file, {
-        complete: (result) => {
-          console.log(
-            '🚀 ~ PokemonListComponent ~ onImportCsv ~ result:',
-            result
-          );
-          this.pokemonList = (result.data as any[]).map(
-            (row: any[]) => ({
-              name: row[0],
-              type: row[1],
-              legendary: row[2] === 'true',
-              speed: Number(row[4]),
-              image: row[13], // Assuming columns are: name, type, legendary, speed, image
-            })
-            // (row: any[]) =>
-            //   ({
-            //     name: row[0],
-            //     type: row[1],
-            //     legendary: row[2] === 'true',
-            //     speed: Number(row[3]),
-            //     image: row[4], // Assuming columns are: name, type, legendary, speed, image
-            //   })
-          );
-          this.filteredList.set([...this.pokemonList]);
-          console.log(
-            '🚀 ~ PokemonListComponent ~ onImportCsv ~ this.filteredList:',
-            this.filteredList()
-          );
-
-          this.filterPokemon(); // Apply any active filters after loading
-        },
-        header: false,
-      });
+    if (!file) {
+      this.messageService.error('Uploaded file not found');
+      return;
     }
+    this.isImporting = true;
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    this.pokemonsService
+      .uploadFile(formData)
+      .pipe(
+        catchError((err) => {
+          this.messageService.error('Failed to upload file');
+          return throwError(() => err);
+        }),
+        finalize(() => {
+          el.value = '';
+          this.isImporting = false;
+        })
+      )
+      .subscribe((res) => {
+        this.messageService.success(
+          res?.message || 'Uploaded file successfully'
+        );
+        this.getPokemons();
+      });
   }
 
   // Filter Pokémon list based on search and advanced filters
   filterPokemon(): void {
-    // const filteredList = this.pokemonList.filter((pokemon: any) => {
-    //   const matchesSearchTerm = pokemon.name
-    //     .toLowerCase()
-    //     .includes(this.searchTerm.toLowerCase());
-    //   const matchesType = this.types.length
-    //     ? this.types.includes(pokemon.type)
-    //     : true;
-    //   const matchesLegendary =
-    //     this.legendaryStatus !== null
-    //       ? pokemon.legendary === this.legendaryStatus
-    //       : true;
-    //   const matchesSpeed =
-    //     this.minSpeed !== null && this.maxSpeed !== null
-    //       ? pokemon.speed >= this.minSpeed && pokemon.speed <= this.maxSpeed
-    //       : true;
-
-    //   return (
-    //     matchesSearchTerm && matchesType && matchesLegendary && matchesSpeed
-    //   );
-    // });
+    const filteredList = this.pokemonList.filter((pokemon: any) => {
+      const matchesSearchTerm = pokemon.name
+        .toLowerCase()
+        .includes(this.searchTerm.toLowerCase());
+      const matchesType = this.types.length
+        ? this.types.includes(pokemon.type)
+        : true;
+      const matchesLegendary =
+        this.legendaryStatus !== null
+          ? pokemon.legendary === this.legendaryStatus
+          : true;
+      const matchesSpeed =
+        this.minSpeed !== null && this.maxSpeed !== null
+          ? pokemon.speed >= this.minSpeed && pokemon.speed <= this.maxSpeed
+          : true;
+      return (
+        matchesSearchTerm && matchesType && matchesLegendary && matchesSpeed
+      );
+    });
     // this.filteredList.set(filteredList);
-    console.log(
-      '🚀 ~ PokemonListComponent ~ filterPokemon ~ this.filteredList:',
-      this.filteredList()
-    );
   }
 
   // Handle page size change
   onPageSizeChange(value: number): void {
-    this.pageSize = value;
+    this.pageSizeDefault = value;
+    this.queryParams.limit = value;
     this.currentPage = 1; // Reset to page 1 on page size change
+    this.queryParams.offset = 0;
+    this.getPokemons();
   }
 
   // Handle page change
   onPageChange(page: number): void {
     this.currentPage = page;
+    this.queryParams.offset = page - 1;
+    this.getPokemons();
   }
 
   // Load query params if available
   loadFromQueryParams(): void {
     const urlParams = new URLSearchParams(window.location.search);
     this.searchTerm = urlParams.get('search') || '';
-    this.legendaryStatus =
-      urlParams.get('legendary') === 'true'
-        ? true
-        : urlParams.get('legendary') === 'false'
-        ? false
-        : null;
-    this.minSpeed = urlParams.has('minSpeed')
-      ? parseInt(urlParams.get('minSpeed') || '', 10)
+    this.queryParams = {
+      name: urlParams.get('name') || null,
+      type: urlParams.get('type') || null,
+      legendary: urlParams.get('legendary') || null,
+      minSpeed: urlParams.get('minSpeed') || null,
+      maxSpeed: urlParams.get('maxSpeed') || null,
+      limit: this.pageSizeDefault,
+      offset: 0,
+    };
+    this.selectedLegendary = this.queryParams.legendary
+      ? Boolean(this.queryParams.legendary)
       : null;
-    this.maxSpeed = urlParams.has('maxSpeed')
-      ? parseInt(urlParams.get('maxSpeed') || '', 10)
+    this.selectedType = this.queryParams.type || null;
+    this.speedMinValue = this.queryParams.minSpeed
+      ? Number(this.queryParams.minSpeed)
       : null;
-    this.filterPokemon(); // Apply the filters from query params
+    this.maxSpeed = this.queryParams.maxSpeed
+      ? Number(this.queryParams.maxSpeed)
+      : null;
+
+    this.getPokemons(); // Apply the filters from query params
+  }
+
+  getPokemons(): void {
+    const queryString = this.getQueryParamsString();
+    this.isLoadingData = true;
+    this.pokemonsService
+      .getList(queryString)
+      .pipe(
+        catchError((err) => {
+          return throwError(() => err);
+        }),
+        finalize(() => {
+          this.isLoadingData = false;
+        })
+      )
+      .subscribe((res) => {
+        if (!res?.data?.length) {
+          this.filteredList.set([]);
+          return;
+        }
+
+        this.filteredList.set(res.data);
+        this.totalResults = res.totalPokemons;
+      });
   }
 
   toggleFavorite(): void {}
 
   openPokemonDetail(pokemon: IPokemonItem) {
-    console.log(
-      '🚀 ~ PokemonListComponent ~ openPokemonDetail ~ pokemon:',
-      pokemon
-    );
     this.selectedPokemon.set(pokemon);
     this.isDetailVisible = true;
   }
@@ -236,5 +260,62 @@ export class PokemonListComponent {
   closePokemonDetail(): void {
     this.selectedPokemon.set(null);
     this.isDetailVisible = false;
+  }
+
+  updateQueryParams() {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        ...this.queryParams,
+      },
+      queryParamsHandling: 'merge', // Merge with existing query params
+    });
+  }
+
+  getQueryParamsString(): string {
+    const queryParams = new URLSearchParams();
+    Object.keys(this.queryParams).forEach((key) => {
+      queryParams.append(key, this.queryParams[key] || '');
+    });
+
+    return queryParams.toString();
+  }
+
+  onLegendaryStatusChange(value: boolean): void {
+    this.queryParams.legendary = value ? 'true' : 'false';
+    this.updateQueryParams();
+    this.getPokemons();
+  }
+
+  onTypeChange(value: string): void {
+    this.queryParams.type = value;
+    this.updateQueryParams();
+    this.getPokemons();
+  }
+
+  onSpeedRangeChange(isMin = true): void {
+    if (
+      this.speedMinValue &&
+      this.speedMaxValue &&
+      this.speedMinValue > this.speedMaxValue
+    ) {
+      setTimeout(() => {
+        if (isMin) {
+          this.speedMinValue = this.speedMaxValue;
+        } else {
+          this.speedMaxValue = this.speedMinValue;
+        }
+        this.updateSpeedQuery();
+      });
+    } else {
+      this.updateSpeedQuery();
+    }
+  }
+
+  private updateSpeedQuery(): void {
+    this.queryParams.minSpeed = String(this.speedMinValue || '');
+    this.queryParams.maxSpeed = String(this.speedMaxValue || '');
+    this.updateQueryParams();
+    this.getPokemons();
   }
 }
