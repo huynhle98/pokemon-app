@@ -49,6 +49,12 @@ Angular CLI: 18.2.7
    - Add/remove Pokémon from the user’s favorite list.
 6. Fetch User’s Favorite Pokémon List
    - Retrieve all favorited Pokémon of a specific user.
-  
+
 ## 4. Demo Images
-![favorite pokemons](https://github.com/huynhle98/pokemon-app/blob/60d0cbc637845510cae7b81838ee1314f10583b3/demo-images/favorite-pokemons.png)
+
+![signup](https://github.com/huynhle98/pokemon-app/blob/60d0cbc637845510cae7b81838ee1314f10583b3/demo-images/signup.png)
+![login](https://github.com/huynhle98/pokemon-app/blob/60d0cbc637845510cae7b81838ee1314f10583b3/demo-images/login.png)
+![home](https://github.com/huynhle98/pokemon-app/blob/60d0cbc637845510cae7b81838ee1314f10583b3/demo-images/home.png)
+![pokemon list](https://github.com/huynhle98/pokemon-app/blob/60d0cbc637845510cae7b81838ee1314f10583b3/demo-images/pokemon-list.png)
+![pokemon detail modal](https://github.com/huynhle98/pokemon-app/blob/60d0cbc637845510cae7b81838ee1314f10583b3/demo-images/pokemon-detail-modal.png)
+![mongoDb](https://github.com/huynhle98/pokemon-app/blob/60d0cbc637845510cae7b81838ee1314f10583b3/demo-images/mongoDb.png)
