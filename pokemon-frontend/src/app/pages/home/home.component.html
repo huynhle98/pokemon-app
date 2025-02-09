@@ -1,0 +1,66 @@
+<div class="p-4">
+  <div *ngIf="!pokemonList()?.length" class="flex flex-col items-center">
+    <a
+      class="flex font-semibold text-lg text-[#40a9ff]"
+      [routerLink]="['/pokemon-list']"
+    >
+      Go to Pokemon List to Import Data
+    </a>
+    <nz-empty nzNotFoundImage="simple"></nz-empty>
+  </div>
+  <!-- Carousel Section -->
+  <nz-carousel [nzEffect]="effect" class="rounded-lg mb-8 h-[400px]">
+    <div *ngFor="let videoUrl of videoUrls" nz-carousel-content>
+      <iframe
+        class="w-full h-full"
+        [src]="videoUrl | safe"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+    </div>
+  </nz-carousel>
+
+  <!-- Pokémon Section -->
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <ng-container *ngFor="let pokemon of pokemonList()">
+      <app-pokemon-item
+        [pokemonItem]="pokemon"
+        class="hero"
+        (click)="openPokemonDetail(pokemon)"
+      ></app-pokemon-item>
+      <!-- <nz-ribbon [nzText]="pokemon.name">
+        <div class="border border-black/6 rounded-lg shadow-lg p-2.5">
+          <img
+            [src]="pokemon.image"
+            [alt]="pokemon.name"
+            class="w-24 h-24 mx-auto mt-2"
+          />
+        </div>
+      </nz-ribbon> -->
+    </ng-container>
+  </div>
+
+  <!-- Pokémon Detail Modal -->
+  <nz-modal
+    [(nzVisible)]="isDetailVisible"
+    nzTitle="Pokemon Details"
+    (nzOnCancel)="closePokemonDetail()"
+    [nzFooter]="null"
+    [nzClassName]="'rounded-lg'"
+    [nzMaskStyle]="{ top: '0px' }"
+    [nzBodyStyle]="{ padding: '10px' }"
+    [nzStyle]="{
+      top: '20px',
+      borderRadius: '12px',
+      overflow: 'hidden',
+      padding: '0'
+    }"
+  >
+    <div *nzModalContent class="rounded-lg">
+      <app-pokemon-detail
+        [pokemonDetail]="selectedPokemon()"
+        (favoriteChange)="toggleFavorite($event)"
+      ></app-pokemon-detail>
+    </div>
+  </nz-modal>
+</div>

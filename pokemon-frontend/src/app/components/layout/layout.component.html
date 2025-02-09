@@ -1,0 +1,95 @@
+<nz-layout *ngIf="isAuthenticated; else notLayoutTemplate" class="app-layout">
+  <nz-sider
+    class="menu-sidebar"
+    nzCollapsible
+    nzWidth="256px"
+    nzBreakpoint="lg"
+    [(nzCollapsed)]="isCollapsed"
+    [nzTrigger]="null"
+  >
+    <div class="sidebar-logo">
+      <a routerLink="/">
+        <img [src]="'assets/images/pokemon-icon.png'" alt="logo" />
+        <h1>{{ appName }}</h1>
+      </a>
+    </div>
+    <ul
+      nz-menu
+      nzTheme="dark"
+      nzMode="inline"
+      [nzInlineCollapsed]="isCollapsed"
+    >
+      <ng-container *ngFor="let item of menuItems">
+        <ng-container *ngIf="item.children?.length; else menuItemTemplate">
+          <li
+            nz-submenu
+            nzOpen
+            [nzTitle]="item.label"
+            [nzIcon]="item.icon || ''"
+          >
+            <ul *ngIf="item.children?.length">
+              <li
+                *ngFor="let childItem of item.children"
+                nz-menu-item
+                nzMatchRouter
+              >
+                <a [routerLink]="childItem.path">{{ childItem.label }}</a>
+              </li>
+            </ul>
+          </li>
+        </ng-container>
+        <ng-template #menuItemTemplate>
+          <li nz-menu-item [nzMatchRouter]="item.path">
+            <span
+              *ngIf="item.icon"
+              class="mr-2.5"
+              nz-icon
+              [nzType]="item.icon"
+            ></span>
+            <a [routerLink]="item.path">
+              {{ isCollapsed ? "" : item.label }}
+            </a>
+          </li>
+        </ng-template>
+      </ng-container>
+    </ul>
+  </nz-sider>
+  <nz-layout>
+    <nz-header>
+      <div class="app-header flex items-center justify-between px-6">
+        <span class="header-trigger" (click)="isCollapsed = !isCollapsed">
+          <span
+            class="trigger"
+            nz-icon
+            [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
+          ></span>
+        </span>
+        <button
+          *ngIf="this.profile"
+          class="flex items-center text-md font-semibold"
+          nz-button
+          nzType="link"
+          nz-dropdown
+          [nzDropdownMenu]="menu"
+        >
+          <span class="mr-2">Hello, {{ this.profile.username }}</span>
+          <i nz-icon nzType="down"></i>
+        </button>
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item (click)="logout()">Logout</li>
+          </ul>
+        </nz-dropdown-menu>
+      </div>
+    </nz-header>
+    <nz-content>
+      <div class="inner-content rounded-lg">
+        <router-outlet></router-outlet>
+      </div>
+    </nz-content>
+    <nz-footer>Copyright ©2025 by</nz-footer>
+  </nz-layout>
+</nz-layout>
+<ng-template #notLayoutTemplate>
+  <router-outlet></router-outlet>
+</ng-template>

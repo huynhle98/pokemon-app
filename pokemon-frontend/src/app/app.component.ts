@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-
+import { LayoutComponent } from './components/layout/layout.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { QuestionOutline } from '@ant-design/icons-angular/icons';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [LayoutComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.scss'],
 })
-export class AppComponent {
-  title = 'pokemon-frontend';
-}
+export class AppComponent {}
