@@ -1,4 +1,13 @@
 <div class="p-4">
+  <div *ngIf="!pokemonList()?.length" class="flex flex-col items-center">
+    <a
+      class="flex font-semibold text-lg text-[#40a9ff]"
+      [routerLink]="['/pokemon-list']"
+    >
+      Go to Pokemon List to Import Data
+    </a>
+    <nz-empty nzNotFoundImage="simple"></nz-empty>
+  </div>
   <!-- Carousel Section -->
   <nz-carousel [nzEffect]="effect" class="rounded-lg mb-8 h-[400px]">
     <div *ngFor="let videoUrl of videoUrls" nz-carousel-content>
@@ -13,7 +22,7 @@
 
   <!-- Pokémon Section -->
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-    <ng-container *ngFor="let pokemon of pokemonList">
+    <ng-container *ngFor="let pokemon of pokemonList()">
       <app-pokemon-item
         [pokemonItem]="pokemon"
         class="hero"
@@ -50,7 +59,7 @@
     <div *nzModalContent class="rounded-lg">
       <app-pokemon-detail
         [pokemonDetail]="selectedPokemon()"
-        (favoriteChange)="toggleFavorite()"
+        (favoriteChange)="toggleFavorite($event)"
       ></app-pokemon-detail>
     </div>
   </nz-modal>

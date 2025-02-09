@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { User } from '../schemas/user.schema';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { UsersService } from 'src/services/users.service';
+import { User } from '../schemas/user.schema';
 
-@Controller('users')
+@Controller('api/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -17,4 +17,5 @@ export class UsersController {
   async findUser(@Param('username') username: string): Promise<User | null> {
     return this.usersService.findUserByUsername(username);
   }
+  // Mark Pokémon as favorite
 }

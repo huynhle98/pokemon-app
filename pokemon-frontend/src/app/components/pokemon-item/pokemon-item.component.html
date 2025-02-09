@@ -1,5 +1,5 @@
 <div>
-  <ng-container *ngIf="!pokemonItem()?.['isFavorite']; else itemTemplate">
+  <ng-container *ngIf="pokemonItem()?.['isFavorite']; else itemTemplate">
     <nz-ribbon [nzText]="favoriteIcon" [nzColor]="'#eb2f96'">
       <ng-container [ngTemplateOutlet]="itemTemplate"></ng-container>
     </nz-ribbon>

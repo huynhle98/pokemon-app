@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzCarouselModule } from 'ng-zorro-antd/carousel';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { catchError, throwError } from 'rxjs';
@@ -24,6 +26,8 @@ import { PokemonsService } from '../../services/pokemons.service';
     PokemonItemComponent,
     NzModalModule,
     PokemonDetailComponent,
+    NzEmptyModule,
+    RouterModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -37,7 +41,7 @@ export class HomeComponent implements OnInit {
   array = [1, 2, 3, 4];
   effect = 'scrollx';
   // Placeholder Pokémon data for the first 10
-  pokemonList: IPokemonItem[] = [];
+  pokemonList = signal<IPokemonItem[]>([]);
 
   // Placeholder video URLs for the carousel
   videoUrls = [
@@ -67,10 +71,10 @@ export class HomeComponent implements OnInit {
       )
       .subscribe((res) => {
         if (!res?.data?.length) {
-          this.pokemonList = [];
+          this.pokemonList.set([]);
         }
 
-        this.pokemonList = res.data;
+        this.pokemonList.set(res.data);
         this.videoUrls = res.data
           .slice(0, 4)
           .map((item: IPokemonItem) =>
@@ -89,5 +93,13 @@ export class HomeComponent implements OnInit {
     this.isDetailVisible = false;
   }
 
-  toggleFavorite(): void {}
+  toggleFavorite(newItem: IPokemonItem): void {
+    this.pokemonList.update((items: IPokemonItem[]) => {
+      const index = items.findIndex((p) => p.id === newItem.id);
+      if (index !== -1) {
+        items[index].isFavorite = !items[index].isFavorite;
+      }
+      return items;
+    });
+  }
 }

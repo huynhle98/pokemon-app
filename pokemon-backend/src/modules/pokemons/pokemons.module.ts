@@ -10,6 +10,6 @@ import { PokemonsService } from 'src/services/pokemons.service';
   ],
   controllers: [PokemonsController],
   providers: [PokemonsService],
-  exports: [PokemonsService],
+  exports: [PokemonsService, MongooseModule],
 })
 export class PokemonsModule {}

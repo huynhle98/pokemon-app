@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, model, output } from '@angular/core';
 import {
   HeartFill,
   HeartOutline,
@@ -8,6 +8,11 @@ import {
 } from '@ant-design/icons-angular/icons';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
+import { PokemonsService } from '../../services/pokemons.service';
+import { AuthService } from '../../services/auth.service';
+import { IPokemonItem } from '../../interfaces/pokemon.interface';
+import { catchError, throwError } from 'rxjs';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-pokemon-detail',
@@ -18,10 +23,37 @@ import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
   providers: [provideNzIconsPatch([PlusCircleOutline, MinusCircleOutline])],
 })
 export class PokemonDetailComponent {
-  pokemonDetail = input<any | null>(null);
-  favoriteChange = output();
+  private pokemonsService = inject(PokemonsService);
+  private authService = inject(AuthService);
+  private messageService = inject(NzMessageService);
+
+  pokemonDetail = model<IPokemonItem | null>(null);
+  favoriteChange = output<IPokemonItem>();
 
   favoriteToggle(): void {
-    this.favoriteChange.emit();
+    const profile = this.authService.getProfile();
+    const userId = profile?.['sub'];
+    const pokemonId = this.pokemonDetail()?.id || '';
+    const isFavorite = this.pokemonDetail()?.isFavorite;
+    this.pokemonsService[isFavorite ? 'removeFavorite' : 'addFavorite'](
+      userId,
+      pokemonId
+    )
+      .pipe(
+        catchError((err) => {
+          this.messageService.error('Failed to toggle favorites');
+          return throwError(() => err);
+        })
+      )
+      .subscribe((res: IPokemonItem) => {
+        if (!res) {
+          this.messageService.error('Failed to toggle favorites');
+          return;
+        }
+
+        this.pokemonDetail.set(res);
+        this.messageService.success('Toggle favorites Successfully');
+        this.favoriteChange.emit(res);
+      });
   }
 }

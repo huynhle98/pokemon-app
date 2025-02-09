@@ -1,0 +1,50 @@
+<div>
+  <div
+    *ngIf="isLoadingData; else dataTemplate"
+    class="flex items-center justify-center bg-opacity-40 w-full h-[30vh]"
+  >
+    <span class="text-4xl" nz-icon nzType="loading" nzTheme="outline"></span>
+  </div>
+
+  <ng-template #dataTemplate>
+    <div class="w-full" *ngIf="data().length === 0; else hasDataTemplate">
+      <nz-empty nzNotFoundImage="simple"></nz-empty>
+    </div>
+    <ng-template #hasDataTemplate>
+      <div
+        class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6 relative"
+      >
+        <app-pokemon-item
+          *ngFor="let item of data()"
+          [pokemonItem]="item"
+          class="hero"
+          (click)="openPokemonDetail(item)"
+        ></app-pokemon-item>
+      </div>
+    </ng-template>
+  </ng-template>
+
+  <!-- Pokémon Detail Modal -->
+  <nz-modal
+    [(nzVisible)]="isDetailVisible"
+    nzTitle="Pokemon Details"
+    (nzOnCancel)="closePokemonDetail()"
+    [nzFooter]="null"
+    [nzClassName]="'rounded-lg'"
+    [nzMaskStyle]="{ top: '0px' }"
+    [nzBodyStyle]="{ padding: '10px' }"
+    [nzStyle]="{
+      top: '20px',
+      borderRadius: '12px',
+      overflow: 'hidden',
+      padding: '0'
+    }"
+  >
+    <div *nzModalContent class="rounded-lg">
+      <app-pokemon-detail
+        [pokemonDetail]="selectedPokemon()"
+        (favoriteChange)="toggleFavorite($event)"
+      ></app-pokemon-detail>
+    </div>
+  </nz-modal>
+</div>

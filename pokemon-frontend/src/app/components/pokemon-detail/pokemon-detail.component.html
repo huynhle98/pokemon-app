@@ -4,17 +4,19 @@
     class="rounded-md inline-flex items-center mb-2"
     nz-button
     [nzType]="'link'"
-    [nzDanger]="pokemonDetail().isFavorite"
+    [nzDanger]="pokemonDetail()?.isFavorite"
   >
     <span
       class="text-[20px]"
       nz-icon
-      [nzType]="!pokemonDetail().isFavorite ? 'plus-circle' : 'minus-circle'"
+      [nzType]="!pokemonDetail()?.isFavorite ? 'plus-circle' : 'minus-circle'"
       nzTheme="outline"
       nzTwotoneColor="#eb2f96"
     ></span>
     {{
-      pokemonDetail().isFavorite ? "Remove from Favorites" : " Add to Favorites"
+      !!pokemonDetail()?.isFavorite
+        ? "Remove from Favorites"
+        : " Add to Favorites"
     }}
   </button>
   <div class="card-container animate-float">
@@ -26,10 +28,12 @@
       <div class="relative bg-[#175462] p-3 rounded-xl">
         <!-- Header -->
         <div class="flex justify-between items-start mb-2">
-          <h2 class="text-lg font-bold text-white">Charizard</h2>
+          <h2 class="text-lg font-bold text-white">
+            {{ pokemonDetail()?.name }}
+          </h2>
           <div class="flex items-center gap-1">
             <span class="text-white font-bold">HP</span>
-            <span class="text-white font-bold">120</span>
+            <span class="text-white font-bold">{{ pokemonDetail()?.hp }}</span>
           </div>
         </div>
 
@@ -46,7 +50,7 @@
           </div>
           <!-- Charizard Image -->
           <img
-            [src]="pokemonDetail().image"
+            [src]="pokemonDetail()?.image"
             alt="Charizard"
             class="pokemon-image"
           />
@@ -55,32 +59,56 @@
         <!-- Pokemon Info -->
         <div class="bg-white/90 backdrop-blur rounded-lg p-3 space-y-3">
           <!-- Type -->
-          <div class="flex items-center gap-2">
-            <span class="type-fire text-white text-xs px-2 py-1 rounded-full"
-              >Fire</span
+          <div class="flex items-center gap-2 justify-between">
+            <div class="flex items-center gap-2">
+              <span class="type-fire text-white text-xs px-2 py-1 rounded-full">
+                {{ pokemonDetail()?.type1 }}
+              </span>
+              <span
+                *ngIf="pokemonDetail()?.type2"
+                class="text-xs text-neutral-600"
+              >
+                {{ pokemonDetail()?.type2 }}
+              </span>
+            </div>
+
+            <span
+              *ngIf="pokemonDetail()?.legendary"
+              class="type-fire text-white text-xs px-2 py-1 rounded-full"
             >
-            <span class="text-xs text-neutral-600">Stage 2</span>
+              Legendary
+            </span>
           </div>
 
           <!-- Attacks -->
           <div class="space-y-2">
+            <div class="grid grid-cols-3">
+              <span class="text-left text-xs">
+                Attack: <strong>{{ pokemonDetail()?.attack }}</strong>
+              </span>
+              <span class="text-left text-xs">
+                Defense: <strong>{{ pokemonDetail()?.defense }}</strong>
+              </span>
+              <span class="text-left text-xs">
+                Generation: <strong> {{ pokemonDetail()?.generation }}</strong>
+              </span>
+              <span class="text-left text-xs">
+                spAttack: <strong>{{ pokemonDetail()?.spAttack }}</strong>
+              </span>
+              <span class="text-left text-xs">
+                spDefense: <strong>{{ pokemonDetail()?.spDefense }}</strong>
+              </span>
+              <span class="text-left text-xs">
+                speed: <strong>{{ pokemonDetail()?.speed }}</strong>
+              </span>
+            </div>
             <div class="flex items-start gap-2">
               <div class="flex gap-1">
-                <div
-                  class="w-4 h-4 rounded-full bg-gradient-to-br from-orange-400 to-red-500 animate-pulse-glow"
-                ></div>
-                <div
-                  class="w-4 h-4 rounded-full bg-gradient-to-br from-orange-400 to-red-500 animate-pulse-glow"
-                ></div>
+                <h3 class="font-bold text-sm">Total:</h3>
+                <span class="font-bold">
+                  {{ pokemonDetail()?.total }}
+                </span>
               </div>
-              <div>
-                <h3 class="font-bold text-sm">Fire Spin</h3>
-                <p class="text-xs text-neutral-600">
-                  Discard 2 Energy cards attached to Charizard in order to use
-                  this attack.
-                </p>
-              </div>
-              <span class="font-bold ml-auto">100</span>
             </div>
           </div>
 
@@ -88,25 +116,12 @@
           <div
             class="flex items-center justify-between text-xs pt-2 border-t border-neutral-200"
           >
-            <div>
-              <span class="text-neutral-600">Weakness</span>
-              <span class="ml-1 type-fire text-white px-2 py-0.5 rounded-full"
-                >Water</span
-              >
-            </div>
-            <div>
-              <span class="text-neutral-600">Resistance</span>
-              <span class="ml-1 bg-neutral-200 px-2 py-0.5 rounded-full"
-                >-30</span
-              >
-            </div>
-            <div>
-              <span class="text-neutral-600">Retreat Cost</span>
-              <span
-                class="ml-1 bg-neutral-800 text-white px-2 py-0.5 rounded-full"
-                >3</span
-              >
-            </div>
+            <span class="text-neutral-600">
+              Youtube:
+              <a [href]="pokemonDetail()?.ytbUrl">
+                {{ pokemonDetail()?.ytbUrl }}
+              </a>
+            </span>
           </div>
         </div>
       </div>

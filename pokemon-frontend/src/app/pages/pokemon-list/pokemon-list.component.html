@@ -157,7 +157,7 @@
     <div *nzModalContent class="rounded-lg">
       <app-pokemon-detail
         [pokemonDetail]="selectedPokemon()"
-        (favoriteChange)="toggleFavorite()"
+        (favoriteChange)="toggleFavorite($event)"
       ></app-pokemon-detail>
     </div>
   </nz-modal>

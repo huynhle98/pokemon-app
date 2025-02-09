@@ -23,8 +23,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'welcome',
-    loadChildren: () =>
-      import('./pages/welcome/welcome.routes').then((m) => m.WELCOME_ROUTES),
+    path: 'favorite-pokemons',
+    loadComponent: () =>
+      import('./pages/favorite-pokemons/favorite-pokemons.component').then(
+        (c) => c.FavoritePokemonsComponent
+      ),
+    canActivate: [AuthGuard],
   },
 ];

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import {
+  HeartOutline,
   HomeOutline,
   UnorderedListOutline,
 } from '@ant-design/icons-angular/icons';
@@ -29,7 +30,9 @@ import { AuthService } from '../../services/auth.service';
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss',
-  providers: [provideNzIconsPatch([HomeOutline, UnorderedListOutline])],
+  providers: [
+    provideNzIconsPatch([HomeOutline, UnorderedListOutline, HeartOutline]),
+  ],
 })
 export class LayoutComponent {
   private authService = inject(AuthService);

@@ -251,7 +251,15 @@ export class PokemonListComponent {
       });
   }
 
-  toggleFavorite(): void {}
+  toggleFavorite(newItem: IPokemonItem): void {
+    this.filteredList.update((items: IPokemonItem[]) => {
+      const index = items.findIndex((p) => p.id === newItem.id);
+      if (index !== -1) {
+        items[index].isFavorite = !items[index].isFavorite;
+      }
+      return items;
+    });
+  }
 
   openPokemonDetail(pokemon: IPokemonItem) {
     this.selectedPokemon.set(pokemon);
