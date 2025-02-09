@@ -28,22 +28,25 @@ export class PokemonsService {
     if (query.type) {
       filter.$or = [{ type1: query.type }, { type2: query.type }];
     }
-    filter.legendary = query.legendary === 'true' ? true : false;
+    if (!(!query.legendary || !this.isNotNullOrUndefined(query.legendary))) {
+      filter.legendary = Boolean(query.legendary);
+    }
+
     filter.speed = {
       $gte:
-        !query.minSpeed || this.isNotNullOrUndefined(query.minSpeed)
-          ? Number(query.minSpeed) || 1
-          : 1,
+        !query.minSpeed || !this.isNotNullOrUndefined(query.minSpeed)
+          ? 1
+          : Number(query.minSpeed) || 1,
       $lte:
-        !query.maxSpeed || this.isNotNullOrUndefined(query.maxSpeed)
-          ? Number(query.maxSpeed) || 500
-          : 500,
+        !query.maxSpeed || !this.isNotNullOrUndefined(query.maxSpeed)
+          ? 500
+          : Number(query.maxSpeed) || 500,
     };
 
     // Fetch Pokémon with pagination
     const pokemons = await this.pokemonModel
       .find(filter)
-      .skip(query.offset)
+      .skip(query.offset || 0)
       .limit(query.limit);
 
     const totalPokemons = await this.pokemonModel.countDocuments(filter);
@@ -66,5 +69,9 @@ export class PokemonsService {
 
     const uniqueTypes = new Set([...types1, ...types2]);
     return Array.from(uniqueTypes).filter(Boolean); // Remove null/undefined values
+  }
+
+  async findById(id: string): Promise<Pokemon | null> {
+    return this.pokemonModel.findOne({ id }).exec();
   }
 }

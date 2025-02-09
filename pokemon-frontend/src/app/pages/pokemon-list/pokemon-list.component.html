@@ -100,24 +100,31 @@
   </div>
 
   <div
-    *ngIf="isLoadingData; else hasDataTemplate"
+    *ngIf="isLoadingData; else dataTemplate"
     class="flex items-center justify-center bg-opacity-40 w-full h-[30vh]"
   >
     <span class="text-4xl" nz-icon nzType="loading" nzTheme="outline"></span>
   </div>
 
-  <ng-template #hasDataTemplate>
-    <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6 relative">
-      <div class="heroes-notfound" *ngIf="filteredList().length === 0">
-        Not Found Heroes Matching
-      </div>
-      <app-pokemon-item
-        *ngFor="let item of filteredList()"
-        [pokemonItem]="item"
-        class="hero"
-        (click)="openPokemonDetail(item)"
-      ></app-pokemon-item>
+  <ng-template #dataTemplate>
+    <div
+      class="w-full"
+      *ngIf="filteredList().length === 0; else hasDataTemplate"
+    >
+      <nz-empty nzNotFoundImage="simple"></nz-empty>
     </div>
+    <ng-template #hasDataTemplate>
+      <div
+        class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6 relative"
+      >
+        <app-pokemon-item
+          *ngFor="let item of filteredList()"
+          [pokemonItem]="item"
+          class="hero"
+          (click)="openPokemonDetail(item)"
+        ></app-pokemon-item>
+      </div>
+    </ng-template>
   </ng-template>
   <div class="flex justify-end mt-4">
     <nz-pagination

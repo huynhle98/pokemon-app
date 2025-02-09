@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingOutline, SearchOutline } from '@ant-design/icons-angular/icons';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
@@ -23,8 +25,6 @@ import { PokemonDetailComponent } from '../../components/pokemon-detail/pokemon-
 import { PokemonItemComponent } from '../../components/pokemon-item/pokemon-item.component';
 import { IPokemonItem } from '../../interfaces/pokemon.interface';
 import { PokemonsService } from '../../services/pokemons.service';
-import { ActivatedRoute, Router } from '@angular/router';
-
 @Component({
   selector: 'app-pokemon-list',
   standalone: true,
@@ -42,6 +42,7 @@ import { ActivatedRoute, Router } from '@angular/router';
     NzInputNumberModule,
     NzModalModule,
     PokemonDetailComponent,
+    NzEmptyModule,
   ],
   templateUrl: './pokemon-list.component.html',
   styleUrl: './pokemon-list.component.scss',

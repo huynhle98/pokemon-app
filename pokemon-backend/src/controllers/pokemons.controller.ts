@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
+  Param,
   Post,
   Query,
   Res,
@@ -38,11 +40,14 @@ export class PokemonsController {
     };
   }
 
-  // 📌 API: Lấy thông tin một Pokémon theo ID
-  //   @Get(':id')
-  //   async findOne(@Param('id') id: string): Promise<Pokemon> {
-  //     return this.pokemonsService.findById(id);
-  //   }
+  @Get('details/:id')
+  async getPokemonById(@Param('id') id: string): Promise<Pokemon> {
+    const pokemon = await this.pokemonsService.findById(id);
+    if (!pokemon) {
+      throw new NotFoundException(`Pokémon with ID ${id} not found.`);
+    }
+    return pokemon;
+  }
 
   @Post('upload')
   @UseInterceptors(
@@ -71,35 +76,38 @@ export class PokemonsController {
     if (!filePath) {
       return res.status(400).json({ message: 'File path is missing.' });
     }
-
     // Read the uploaded CSV file
     fs.createReadStream(filePath)
-      .pipe(csv())
-      .on('data', (row) => {
-        const hasPokemon = this.pokemonsService.checkIfPokemonExists(
-          String(row.id),
-        );
-        if (!hasPokemon) {
-          pokemons.push({
-            id: String(row.id),
-            name: row.name,
-            type1: row.type1,
-            type2: row.type2 || null,
-            total: Number(row.total),
-            legendary: row.legendary === 'true',
-            hp: Number(row.hp),
-            attack: Number(row.attack),
-            defense: Number(row.defense),
-            spAttack: Number(row.spAttack),
-            spDefense: Number(row.spDefense),
-            speed: Number(row.speed),
-            generation: Number(row.generation),
-            image: row.image,
-            ytbUrl: row.ytbUrl || null,
-            isFavorite: false,
-          });
-        }
+      .pipe(
+        csv({
+          mapHeaders: ({ header }) => header.replace(/['"]+/g, '').trim(), // Remove any surrounding quotes from headers
+        }),
+      )
+      .on('data', async (row) => {
+        // const hasPokemon = await this.pokemonsService.checkIfPokemonExists(
+        //   String(row.id),
+        // );
+        // if (!hasPokemon) {
+        pokemons.push({
+          id: String(row.id),
+          name: row.name,
+          type1: row.type1,
+          type2: row.type2 || null,
+          total: Number(row.total),
+          legendary: row.legendary === 'true',
+          hp: Number(row.hp),
+          attack: Number(row.attack),
+          defense: Number(row.defense),
+          spAttack: Number(row.spAttack),
+          spDefense: Number(row.spDefense),
+          speed: Number(row.speed),
+          generation: Number(row.generation),
+          image: row.image,
+          ytbUrl: row.ytbUrl || null,
+          isFavorite: false,
+        });
       })
+
       .on('end', async () => {
         try {
           // Save Pokémon data to the database
