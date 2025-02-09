@@ -57,4 +57,4 @@ Angular CLI: 18.2.7
 ![home](https://github.com/huynhle98/pokemon-app/blob/60d0cbc637845510cae7b81838ee1314f10583b3/demo-images/home.png)
 ![pokemon list](https://github.com/huynhle98/pokemon-app/blob/60d0cbc637845510cae7b81838ee1314f10583b3/demo-images/pokemon-list.png)
 ![pokemon detail modal](https://github.com/huynhle98/pokemon-app/blob/60d0cbc637845510cae7b81838ee1314f10583b3/demo-images/pokemon-detail-modal.png)
-![mongoDb](https://github.com/huynhle98/pokemon-app/blob/60d0cbc637845510cae7b81838ee1314f10583b3/demo-images/mongoDb.png)
+![mongoDb](https://github.com/huynhle98/pokemon-app/blob/28281a504219eb88e0b1f83fef8bc265c1bd46c4/demo-images/mongoDb.png)
